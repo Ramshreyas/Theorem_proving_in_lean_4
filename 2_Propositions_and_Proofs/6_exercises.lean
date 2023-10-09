@@ -42,20 +42,45 @@ theorem assoc_and : (p ∧ q) ∧ r ↔ p ∧ (q ∧ r) :=
       show (p ∧ q) ∧ r from ⟨(⟨hpqr.left, hpqr.right.left⟩), hpqr.right.right⟩)
 
 theorem assoc_or : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) :=
-  Iff.intro
-    (fun h : (p ∨ q) ∨ r =>
-      h.elim 
-      (fun hpq: p ∨ q =>
-        ) 
-      ())      -- Forward Sweep
-    ()      -- Backward sweep
-
+  ⟨λ h : (p ∨ q) ∨ r => h.elim                        -- Forward pass
+    (λ hpq => hpq.elim Or.inl (Or.inr ∘ Or.inl))
+    (Or.inr ∘ Or.inr),
+   λ h : p ∨ (q ∨ r) => h.elim                        -- Backward pass
+    (Or.inl ∘ Or.inl)
+    (λ hqr => hqr.elim (Or.inl ∘ Or.inr) Or.inr)⟩
 
 -- distributivity
 
+example : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :=
+  Iff.intro
+    (fun h : p ∧ (q ∨ r) =>
+      have hp : p := h.left
+      Or.elim h.right
+        (fun hq : q => show (p ∧ q) ∨ (p ∧ r) from Or.inl ⟨hp, hq⟩)
+        (fun hr : r => show (p ∧ q) ∨ (p ∧ r) from Or.inr ⟨hp, hr⟩))
+    (fun h : (p ∧ q) ∨ (p ∧ r) =>
+      Or.elim h
+        (fun hpq : p ∧ q =>
+          have hp : p := hpq.left
+          have hq : q := hpq.right
+          show p ∧ (q ∨ r) from ⟨hp, Or.inl hq⟩)
+        (fun hpr : p ∧ r =>
+          have hp : p := hpr.left
+          have hr : r := hpr.right
+          show p ∧ (q ∨ r) from ⟨hp, Or.inr hr⟩))
 
-example : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := sorry
-example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) := sorry
+example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) :=
+  Iff.intro
+    (fun h : p ∨ (q ∧ r) =>
+      Or.elim h
+        (fun hp : p =>
+          show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inl hp, Or.inl hp⟩)
+        (fun hqr : q ∧ r =>
+          Or.elim hqr
+            (fun hq : q => show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inr hq, Or.inr hq⟩)
+            (fun hr : r => show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inl hr, Or.inl hr⟩)))
+    (fun h : (p ∨ q) ∧ (p ∨ r) =>
+      )
 
 -- other properties
 example : (p → (q → r)) ↔ (p ∧ q → r) := sorry
