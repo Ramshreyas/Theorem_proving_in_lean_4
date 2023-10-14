@@ -75,12 +75,19 @@ example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) :=
       Or.elim h
         (fun hp : p =>
           show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inl hp, Or.inl hp⟩)
-        (fun hqr : q ∧ r =>
-          Or.elim hqr
-            (fun hq : q => show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inr hq, Or.inr hq⟩)
-            (fun hr : r => show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inl hr, Or.inl hr⟩)))
+        (fun hqr : q ∧ r => 
+          show (p ∨ q) ∧ (p ∨ r) from ⟨Or.inr hqr.left, Or.inr hqr.right⟩))
     (fun h : (p ∨ q) ∧ (p ∨ r) =>
-      )
+      have hpq := h.left
+      have hpr := h.right
+      Or.elim hpq
+        (fun hp : p => show p ∨ (q ∧ r) from Or.inl hp)
+        (fun hq : q => 
+          Or.elim hpr
+            (fun hp : p => show p ∨ (q ∧ r) from Or.inl hp)
+            (fun hr : r => show p ∨ (q ∧ r) from Or.inr ⟨hq, hr⟩)))
+          
+
 
 -- other properties
 example : (p → (q → r)) ↔ (p ∧ q → r) := sorry
