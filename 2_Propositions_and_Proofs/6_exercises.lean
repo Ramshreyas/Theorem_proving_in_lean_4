@@ -90,13 +90,38 @@ example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) :=
 
 
 -- other properties
-example : (p → (q → r)) ↔ (p ∧ q → r) := sorry
-example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := sorry
-example : ¬(p ∨ q) ↔ ¬p ∧ ¬q := sorry
-example : ¬p ∨ ¬q → ¬(p ∧ q) := sorry
-example : ¬(p ∧ ¬p) := sorry
-example : p ∧ ¬q → ¬(p → q) := sorry
-example : ¬p → (p → q) := sorry
+example : (p → (q → r)) ↔ (p ∧ q → r) :=
+  ⟨ 
+    λ f ⟨hp, hq⟩ => f hp hq, 
+    λ g hp hq => g ⟨hp, hq⟩  
+  ⟩  
+
+example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) :=
+  ⟨
+    λ f => ⟨λ hp => f (Or.inl hp), λ hq => f (Or.inr hq)⟩,
+    λ ⟨hpr, hqr⟩ g => g.elim hpr hqr 
+  ⟩ 
+
+example : ¬(p ∨ q) ↔ ¬p ∧ ¬q :=
+  ⟨ 
+    λ h => ⟨λ hp => h (Or.inl hp), λ hq => h (Or.inr hq)⟩,
+    λ ⟨hnp, hnq⟩ h => h.elim hnp hnq
+  ⟩ 
+
+example : ¬p ∨ ¬q → ¬(p ∧ q) :=
+  λ h hpq => h.elim
+    (λ hnp => hnp hpq.1)
+    (λ hnq => hnq hpq.2)
+
+example : ¬(p ∧ ¬p) :=
+  λ h => h.2 h.1
+
+example : p ∧ ¬q → ¬(p → q) :=
+  λ ⟨hp, hnq⟩ h => hnq (h hp) 
+
+example : ¬p → (p → q) :=
+  λ hnp hp => absurd hp hnp             -- From falsehood, anything follows
+
 example : (¬p ∨ q) → (p → q) := sorry
 example : p ∨ False ↔ p := sorry
 example : p ∧ False ↔ False := sorry
