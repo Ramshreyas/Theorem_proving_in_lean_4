@@ -122,7 +122,36 @@ example : p ∧ ¬q → ¬(p → q) :=
 example : ¬p → (p → q) :=
   λ hnp hp => absurd hp hnp             -- From falsehood, anything follows
 
-example : (¬p ∨ q) → (p → q) := sorry
-example : p ∨ False ↔ p := sorry
-example : p ∧ False ↔ False := sorry
-example : (p → q) → (¬q → ¬p) := sorry
+example : (¬p ∨ q) → (p → q) :=
+  λ h hp => h.elim
+    (λ hnp => absurd hp hnp)            -- Follows from above!
+    (λ hq => hq)
+
+example : p ∨ False ↔ p :=
+  ⟨ 
+    λ h => h.elim id (False.elim),
+    λ hp => Or.inl hp 
+  ⟩
+
+example : p ∧ False ↔ False := 
+  ⟨
+    λ h => h.right,
+    λ h => h.elim
+  ⟩
+
+example : (p → q) → (¬q → ¬p) :=
+  λ h hnot => λ hp => hnot (h hp)
+
+--Classical
+
+open Classical
+
+variable (p q r : Prop)
+
+example : (p → q ∨ r) → ((p → q) ∨ (p → r)) := sorry
+example : ¬(p ∧ q) → ¬p ∨ ¬q := sorry
+example : ¬(p → q) → p ∧ ¬q := sorry
+example : (p → q) → (¬p ∨ q) := sorry
+example : (¬q → ¬p) → (p → q) := sorry
+example : p ∨ ¬p := sorry
+example : (((p → q) → p) → p) := sorry
